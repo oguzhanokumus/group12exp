@@ -1,0 +1,13 @@
+{% extends "global/Page.html" %}
+
+{% block title %}
+    Page title
+{% endblock %}
+{% block content %}
+
+<p>Player 1 proposed {{group.split_amount}} </p>
+
+    {% formfields %}
+    {% next_button %}
+
+{% endblock %}

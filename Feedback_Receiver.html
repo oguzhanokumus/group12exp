@@ -1,0 +1,37 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Page title
+{% endblock %}
+
+{% block content %}
+
+
+        {% if player.id_in_group == 1 && group.receiver_response == 0 %}
+            <p>You decided to offer <strong>{{group.split_amount}}</strong> to the other player.</p>
+            <p>The other player <strong>accepted</strong> the offer.</p>
+            <p>Hence you payoff is {{payoff1}}</p>
+        {% endif %}
+        {% if player.id_in_group == 1 && group.receiver_response == 1 %}
+            <p>You decided to offer <strong>{{group.split_amount}}</strong> to the other player.</p>
+            <p>The other player <strong>rejected</strong> the offer.</p>
+            <p>Hence you payoff is {{payoff1}}</p>
+        {% endif %}
+        {% if player.id_in_group == 2 && group.receiver_response == 0 %}
+            <p>Participant 1 decided to offer <strong>{{group.split_amount}}</strong>.</p>
+            <p>You <strong>accepted</strong> the offer.</p>
+            <p>Hence you payoff is {{payoff2}}</p>
+        {% endif %}
+        {% if player.id_in_group == 2 && group.receiver_response == 1 %}
+            <p>Participant 1 decided to offer <strong>{{group.split_amount}}</strong>.</p>
+            <p>You <strong>rejected</strong> the offer.</p>
+            <p>Hence your payoff is <strong>{{payoff2}}</strong>.</p>
+        {% endif %}
+
+
+
+    {% next_button %}
+{% endblock %}
+
+
