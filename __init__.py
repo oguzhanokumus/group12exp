@@ -12,6 +12,7 @@ class Constants(BaseConstants):
     players_per_group = 2
     num_rounds = 1
     amount = c(100)
+    ENDOWMENT = c(100)
     participation_fee = c(50)
 
 
@@ -28,11 +29,19 @@ class Group(BaseGroup):
                                             widget=widgets.RadioSelectHorizontal,
         label='Do you accept the proposed split amount?'
                                             )
+    kept = models.CurrencyField(
+        doc="""Amount dictator decided to keep for himself""",
+        min=0,
+        max=Constants.ENDOWMENT,
+        label="I will keep",
+    )
+
 
 class Player(BasePlayer):
 
-    #Name = models.StringField(label='Please enter your Name')
     Gender = models.StringField(label='Please enter your gender')
+    Age = models.StringField(label='Please enter your age')
+
     fair = models.IntegerField(initial=0)
     totalfair_proposer = models.IntegerField(initial=0)
     totalfair_receiver = models.IntegerField(initial=0)
@@ -58,6 +67,13 @@ def set_payoffs(group: Group):
         p1.payoff = 0
         p2.payoff = 0
 
+def set_payoffs2(group: Group):
+    p1 = group.get_player_by_id(1)
+    p2 = group.get_player_by_id(2)
+    p1.payoff = group.kept
+    p2.payoff = Constants.ENDOWMENT - group.kept
+
+
 def feedback_proposer (group: Group):
 
     p1 = group.get_player_by_id(1)
@@ -70,28 +86,19 @@ def feedback_proposer (group: Group):
 
     #p1.totalfair_proposer = p1.in_round(1).fair + p1.in_round(2).fair + p1.in_round(3).fair + p1.in_round(4).fair + p1.in_round(5).fair
 
-def feedback_receiver(group: Group):
-
-    p2 = group.get_player_by_id(1)
-    p2.fair = 0
-    if group.split_amount > 20 & group.receiver_response == 0:
-        p2.fair = p2.fair + 10
-    else:
-        p2.fair = p2.fair + 0
-
-    #p2.totalfair_receiver = p2.in_round(1).fair + p2.in_round(2).fair + p2.in_round(3).fair + p2.in_round(
-        #4).fair + p2.in_round(5).fair
-
 # PAGES
 
-class Proposer(Page):
+class a_Introduction(Page):
+    pass
+
+class ba_Player1(Page):
     form_model = 'group'
     form_fields = ['split_amount']
 
     def is_displayed(player):
         return player.id_in_group == 1
 
-class Receiver(Page) :
+class bb_Player2(Page) :
     form_model = 'group'
     form_fields = ['receiver_response']
 
@@ -110,10 +117,8 @@ class ResultsWaitPage(WaitPage) :
 class ResultsWaitPage2(WaitPage) :
     after_all_players_arrive = 'feedback_proposer'
 
-class ResultsWaitPage3(WaitPage) :
-    after_all_players_arrive = 'feedback_receiver'
 
-class Results(Page) :
+class ca_Results(Page) :
     @staticmethod
     def vars_for_template(player: Player):
         group = player.group
@@ -127,10 +132,10 @@ class Results(Page) :
                     totalfair_r = p2.totalfair_receiver
                     )
 
-class Feedback_Proposer(Page) :
+class cb_Feedback_Proposer(Page) :
     @staticmethod
     def is_displayed(player):
-        return player.round_number == 5
+        return player.id_in_group == 1
 
     def vars_for_template(player: Player):
         group = player.group
@@ -142,8 +147,34 @@ class Feedback_Proposer(Page) :
             totalfair_r=p2.totalfair_receiver
         )
 
-class Survey(Page):
-    form_model = 'player'
-    form_fields =['Name', 'Gender']
+class d_Introduction(Page):
+    pass
 
-page_sequence = [Proposer, WaitForP1, Receiver, ResultsWaitPage, ResultsWaitPage2, ResultsWaitPage3, Results, Feedback_Proposer]
+
+class e_Offer(Page):
+    form_model = 'group'
+    form_fields = ['kept']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        return player.id_in_group == 1
+
+
+class ResultsWaitPage3(WaitPage):
+    after_all_players_arrive = 'set_payoffs2'
+
+
+class f_Results2(Page):
+    @staticmethod
+    def vars_for_template(player: Player):
+        group = player.group
+
+        return dict(offer=Constants.ENDOWMENT - group.kept)
+
+class g_Survey(Page):
+    form_model = 'player'
+    form_fields = ['Gender', 'Age']
+
+
+page_sequence = [a_Introduction, ba_Player1, WaitForP1, bb_Player2, ResultsWaitPage, ResultsWaitPage2, ca_Results, cb_Feedback_Proposer,
+                 d_Introduction, e_Offer, ResultsWaitPage3, f_Results2, g_Survey]

@@ -1,0 +1,33 @@
+{% extends "global/Page.html" %}
+
+{% block title %}
+    Introduction
+{% endblock %}
+{% block content %}
+
+<p>Welcome to our study!</p>
+
+{{ if player.id_in_group == 1 }}
+
+<p>You will be given an endowment of {{Constants.amount}}. </p>
+<p> We ask you to indicate how much of this amount you would like to share with the other player. </p>
+<p> After your allocation, the other player can either accept or reject your offer.</p>
+<p> If the other person accepts, then the allocation will be settled, and you will receive the amount you decided to keep for yourself. </p>
+<p> If the other person rejects the offer, then both of you will get zero. </p>
+
+{{ endif }}
+
+{{ if player.id_in_group == 2 }}
+
+<p> The other player will be given an endowment of {{Constants.amount}}. </p>
+<p> We ask the other player to indicate how much of this amount to share with you. </p>
+<p> When you receive the offer, you can either accept or reject it.</p>
+<p> If you accept, then the allocation will be settled, and you will receive the amount you decided to accept. </p>
+<p> If you reject the offer, then both of you will get zero. </p>
+
+{{ endif }}
+
+    {% formfields %}
+    {% next_button %}
+
+{% endblock %}
